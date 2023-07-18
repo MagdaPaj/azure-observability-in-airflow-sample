@@ -1,0 +1,8 @@
+# Set the default behavior
+* text=auto
+# Declare files that will always have LF line endings on checkout.
+*.sh text eol=lf
+*.sql text eol=lf
+*.yml text eol=lf
+# Denote all files that are truly binary and should not be modified.
+*.png binary
