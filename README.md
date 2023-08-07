@@ -2,6 +2,14 @@
 
 TBD
 
+## Create infrastructure
+
+1. Open command line and navigate to directory containing the infra code: `cd src/infra`
+2. Login into your Azure subscription: `az login`
+3. Init terraform: `terraform init`
+4. Provision infrastructure: `terraform apply`
+5. Take note of the returned log folder URL `remote_base_log_folder`
+
 ## Building via docker compose
 
 To start application

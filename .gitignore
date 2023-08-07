@@ -5,3 +5,10 @@ __pycache__/
 logs/
 .env
 
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
