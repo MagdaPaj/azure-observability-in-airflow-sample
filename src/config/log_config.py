@@ -246,12 +246,13 @@ if REMOTE_LOGGING:
 
         DEFAULT_LOGGING_CONFIG["handlers"].update(GCS_REMOTE_HANDLERS)
     elif REMOTE_BASE_LOG_FOLDER.startswith("wasb"):
+        url_parts = urlsplit(REMOTE_BASE_LOG_FOLDER)
         WASB_REMOTE_HANDLERS: dict[str, dict[str, str | bool | None]] = {
             "task": {
                 "class": "airflow.providers.microsoft.azure.log.wasb_task_handler.WasbTaskHandler",
                 "formatter": "airflow",
                 "base_log_folder": str(os.path.expanduser(BASE_LOG_FOLDER)),
-                "wasb_log_folder": REMOTE_BASE_LOG_FOLDER,
+                "wasb_log_folder": url_parts.path[1:],
                 "wasb_container": "airflow-logs",
                 "filename_template": FILENAME_TEMPLATE,
             },

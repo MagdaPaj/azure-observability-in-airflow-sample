@@ -8,7 +8,7 @@ TBD
 2. Login into your Azure subscription: `az login`
 3. Init terraform: `terraform init`
 4. Provision infrastructure: `terraform apply`
-5. Take note of the returned log folder URL `remote_base_log_folder`
+5. Use the output of the command above in your `.env` file as value for the environment variable named `AIRFLOW__LOGGING__REMOTE_BASE_LOG_FOLDER`
 
 ## Building via docker compose
 

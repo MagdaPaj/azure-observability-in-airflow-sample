@@ -41,11 +41,11 @@ resource "azurerm_storage_account" "storage_account" {
 
 # Blob Container
 resource "azurerm_storage_container" "blob_container" {
-  name                  = "airflow-logs-container"
+  name                  = "airflow-logs"
   storage_account_name  = azurerm_storage_account.storage_account.name
   container_access_type = "private"
 }
 
-output "remote_base_log_folder" {
-  value = "wasb://${azurerm_storage_container.blob_container.name}@${azurerm_storage_account.storage_account.primary_blob_endpoint}"
+output "AIRFLOW__LOGGING__REMOTE_BASE_LOG_FOLDER" {
+  value = "wasb://${azurerm_storage_container.blob_container.name}@${azurerm_storage_account.storage_account.name}.blob.core.windows.net"
 }
