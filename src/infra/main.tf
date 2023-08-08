@@ -49,3 +49,17 @@ resource "azurerm_storage_container" "blob_container" {
 output "AIRFLOW__LOGGING__REMOTE_BASE_LOG_FOLDER" {
   value = "wasb://${azurerm_storage_container.blob_container.name}@${azurerm_storage_account.storage_account.name}.blob.core.windows.net"
 }
+
+output "AZURE_BLOB_HOST" {
+  value = "${azurerm_storage_account.storage_account.name}"
+}
+
+output "AZURE_BLOB_PASSWORD" {
+  sensitive = true
+  value = "${azurerm_storage_account.storage_account.primary_access_key}"
+}
+
+output "AZURE_BLOB_CONNECTION_STRING" {
+  sensitive = true
+  value = "${azurerm_storage_account.storage_account.primary_connection_string}"
+}
