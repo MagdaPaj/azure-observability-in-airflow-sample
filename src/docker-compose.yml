@@ -26,8 +26,16 @@ x-airflow-common:
     AIRFLOW__LOGGING__REMOTE_LOGGING: 'true'
     AIRFLOW__LOGGING__LOGGING_CONFIG_CLASS: 'log_config.DEFAULT_LOGGING_CONFIG'
     AIRFLOW__LOGGING__REMOTE_BASE_LOG_FOLDER: ${AIRFLOW__LOGGING__REMOTE_BASE_LOG_FOLDER}
-    AIRFLOW__LOGGING__REMOTE_LOG_CONN_ID: 'AZURE_BLOB'
-    AIRFLOW_CONN_AZURE_BLOB: ${AIRFLOW_CONN_AZURE_BLOB}
+    AIRFLOW__LOGGING__REMOTE_LOG_CONN_ID: 'azure_blob'
+    AIRFLOW_CONN_AZURE_BLOB: |
+     {
+        "conn_type": "wasb",
+        "password":"${AZURE_BLOB_PASSWORD}",
+        "host": "${AZURE_BLOB_HOST}",
+        "extra": {
+          "connection_string": "${AZURE_BLOB_CONNECTION_STRING}"
+        }
+      }
 
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
