@@ -1,0 +1,9 @@
+IF NOT EXISTS (SELECT 1
+FROM sys.databases
+WHERE name = '$(AirflowDBName)')
+BEGIN
+    EXEC('CREATE DATABASE $(AirflowDBName)')
+END
+GO
+
+ALTER DATABASE [$(AirflowDBName)] SET READ_COMMITTED_SNAPSHOT ON;
