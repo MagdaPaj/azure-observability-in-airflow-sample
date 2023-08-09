@@ -8,7 +8,7 @@ using Azure.Monitor.Ingestion;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 
-namespace log_ingestion
+namespace Sample.Function
 {
     public class LogsIngestion
     {
