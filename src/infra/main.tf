@@ -7,7 +7,7 @@ terraform {
     }
   }
 
-  required_version = ">= 1.1.0"
+  required_version = ">= 1.5.4"
 }
 
 provider "azurerm" {
@@ -32,7 +32,7 @@ resource "azurerm_resource_group" "resource_group" {
 
 # Storage Account
 resource "azurerm_storage_account" "storage_account" {
-  name                     = "saairflowlogs${random_id.random_name.hex}"
+  name                     = "stairflowlogs${random_id.random_name.hex}"
   resource_group_name      = azurerm_resource_group.resource_group.name
   location                 = azurerm_resource_group.resource_group.location
   account_tier             = "Standard"
