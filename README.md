@@ -2,6 +2,14 @@
 
 TBD
 
+## Create infrastructure
+
+1. Open command line and navigate to directory containing the infra code: `cd src/infra`
+2. Login into your Azure subscription: `az login`
+3. Init terraform: `terraform init`
+4. Provision infrastructure: `terraform apply`
+5. Use the returned values in your `.env` file: `terraform output -json`
+
 ## Building via docker compose
 
 To start application
