@@ -8,7 +8,7 @@ using Azure.Monitor.Ingestion;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 
-namespace Sample.Function
+namespace log_ingestion
 {
     public class LogsIngestion
     {
@@ -48,7 +48,7 @@ namespace Sample.Function
             options.MaxConcurrency = 10;
             options.UploadFailed += Options_UploadFailed;
 
-            await client.UploadAsync(ruleId, streamName, entries);
+            await client.UploadAsync(ruleId, streamName, entries).ConfigureAwait(false);
         }
 
         private static string GetEnvironmentVariable(string name)
