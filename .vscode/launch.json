@@ -12,7 +12,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "env": {
-                "PYTHONPATH": "${workspaceFolder}/src/app"
+                "PYTHONPATH": "${workspaceFolder}/src"
             }
         }
     ]

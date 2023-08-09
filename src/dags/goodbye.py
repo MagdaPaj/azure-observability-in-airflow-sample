@@ -1,7 +1,8 @@
+import logging
+import os
 from airflow import DAG
-from airflow.operators.docker_operator import DockerOperator
+from airflow.operators.python_operator  import PythonOperator
 from datetime import datetime
-import app.config as app_config
 
 default_args = {
     'owner': 'airflow',
@@ -14,15 +15,14 @@ dag = DAG(
     catchup=False
 )
 
-docker_task = DockerOperator(
-    task_id='goodbye_docker',
-    image='goodbye:latest',
-    api_version='auto',
-    network_mode='airflow-sample_default',
-    auto_remove=True,
-    mount_tmp_dir=False,
-    environment=app_config.to_dict(),
+def say_goodbye():
+    name = os.getenv("USER", '')
+    logging.info(f'Goodbye {name} from Airflow!')
+
+say_goodbye_task = PythonOperator(
+    task_id='say_goodbye',
+    python_callable=say_goodbye,
     dag=dag
 )
 
-docker_task
+say_goodbye_task

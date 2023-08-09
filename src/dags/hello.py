@@ -1,7 +1,8 @@
+import logging
+import os
 from airflow import DAG
-from airflow.operators.docker_operator import DockerOperator
+from airflow.operators.python_operator  import PythonOperator
 from datetime import datetime
-import app.config as app_config
 
 default_args = {
     'owner': 'airflow',
@@ -14,15 +15,14 @@ dag = DAG(
     catchup=False
 )
 
-docker_task = DockerOperator(
-    task_id='hello_docker',
-    image='hello:latest',
-    api_version='auto',
-    network_mode='airflow-sample_default',
-    auto_remove=True,
-    mount_tmp_dir=False,
-    environment=app_config.to_dict(),
+def say_hello():
+    name = os.getenv("USER", '')
+    logging.info(f'Hello {name} from Airflow!')
+
+say_hello_task = PythonOperator(
+    task_id='say_hello',
+    python_callable=say_hello,
     dag=dag
 )
 
-docker_task
+say_hello_task
