@@ -39,10 +39,7 @@ x-airflow-common:
 
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
-    - ${AIRFLOW_PROJ_DIR:-.}/configs:/opt/airflow/plugins
-    # - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - airflow-logs-volume:/opt/airflow/logs
-    - ${DOCKER_SOCKET_PATH:-//var/run/docker.sock}:/var/run/docker.sock
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
