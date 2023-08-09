@@ -7,9 +7,5 @@
         "excludedTypes": "Request"
       }
     }
-  },
-  "concurrency": {
-    "dynamicConcurrencyEnabled": true,
-    "snapshotPersistenceEnabled": true
   }
 }
