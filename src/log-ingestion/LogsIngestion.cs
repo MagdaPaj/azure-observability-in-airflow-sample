@@ -49,7 +49,7 @@ namespace Sample.Function
             }
             catch (Exception ex)
             {
-                log.LogError(ex, "Error while uploading");
+                log.LogError($"Error while uploading: {ex}");
                 throw;
             }
         }
