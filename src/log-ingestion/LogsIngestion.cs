@@ -13,7 +13,7 @@ namespace Sample.Function
     public class LogsIngestion
     {
         [FunctionName("LogsIngestion")]
-        public async Task Run([BlobTrigger("airflowlogscontainer/{name}.log", Connection = "airflowlogs_STORAGE")]Stream myBlob, string name, ILogger log)
+        public async Task Run([BlobTrigger("airflow-logs/{name}.log", Connection = "airflowlogs_STORAGE")]Stream myBlob, string name, ILogger log)
         {
             log.LogInformation($"C# Blob trigger function starting processing blob\n Name: {name} \n Size: {myBlob.Length} Bytes");
 
