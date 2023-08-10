@@ -24,11 +24,11 @@ resource "azurerm_storage_container" "airflow_logs" {
   container_access_type = "private"
 }
 
-output "airflow_logging_remote_base_log_folder" { 
+output "airflow_logging_remote_base_log_folder" {
   value = "wasb://${azurerm_storage_container.airflow_logs.name}@${azurerm_storage_account.airflow_logs.name}.blob.core.windows.net"
 }
 
-output "airflow_logs_blob_host" { 
+output "airflow_logs_storage_account_name" {
   value = azurerm_storage_account.airflow_logs.name
 }
 
@@ -42,3 +42,6 @@ output "airflow_logs_storage_account_connection_string" {
   value = azurerm_storage_account.airflow_logs.primary_connection_string
 }
 
+output "airflow_logs_storage_account_id" {
+  value = azurerm_storage_account.airflow_logs.id
+}

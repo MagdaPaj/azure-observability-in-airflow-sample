@@ -48,7 +48,8 @@ module "logs_ingestion_function" {
   rg_name                                    = azurerm_resource_group.resource_group.name
   location                                   = var.location
   random_id                                  = random_id.random_name.hex
-  raw_logs_storage_account_connection_string = module.raw_airflow_logs_storage.airflow_logs_storage_account_connection_string
+  raw_logs_storage_account_id                = module.raw_airflow_logs_storage.airflow_logs_storage_account_id
+  raw_logs_storage_account_name              = module.raw_airflow_logs_storage.airflow_logs_storage_account_name
   log_analytics_workspace_id                 = module.azure_monitor.log_analytics_workspace_id
   data_collection_endpoint                   = module.azure_monitor.data_collection_endpoint
   data_collection_rule_immutable_id          = module.azure_monitor.data_collection_rule_immutable_id
@@ -60,7 +61,7 @@ output "AIRFLOW__LOGGING__REMOTE_BASE_LOG_FOLDER" {
 }
 
 output "AZURE_BLOB_HOST" {
-  value = module.raw_airflow_logs_storage.airflow_logs_blob_host
+  value = module.raw_airflow_logs_storage.airflow_logs_storage_account_name
 }
 
 output "AZURE_BLOB_PASSWORD" {
