@@ -1,4 +1,0 @@
-FROM app-base-image:latest
-
-# Set the entry point to execute main.py
-ENTRYPOINT ["python", "-u", "goodbye.py"]

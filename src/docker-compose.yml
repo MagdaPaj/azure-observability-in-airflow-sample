@@ -39,48 +39,14 @@ x-airflow-common:
 
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
-    - ${AIRFLOW_PROJ_DIR:-.}/configs:/opt/airflow/plugins
-    # - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - airflow-logs-volume:/opt/airflow/logs
-    - ${DOCKER_SOCKET_PATH:-//var/run/docker.sock}:/var/run/docker.sock
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
-    sql-server:
-      condition: service_healthy
-    build-hello-image:
-      condition: service_completed_successfully
-    build-goodbye-image:
+    sql-setup:
       condition: service_completed_successfully
 
 services:
-  build-base-image:
-    build:
-      context: .
-      dockerfile: ./Dockerfile.base
-    image: app-base-image:latest
-    entrypoint: ["sh", "-c", "echo 'app-base-image:latest' was successfully built!"]
-
-  build-hello-image:
-    build:
-      context: .
-      dockerfile: ./Dockerfile.hello
-    image: hello:latest
-    entrypoint: ["sh", "-c", "echo 'hello:latest' was successfully built!"]
-    depends_on:
-      build-base-image:
-        condition: service_completed_successfully
-
-  build-goodbye-image:
-    build:
-      context: .
-      dockerfile: ./Dockerfile.goodbye
-    image: goodbye:latest
-    entrypoint: ["sh", "-c", "echo 'goodbye:latest' was successfully built!"]
-    depends_on:
-      build-base-image:
-        condition: service_completed_successfully
-
   sql-server:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
@@ -109,7 +75,8 @@ services:
       - ./sql-scripts:/sql-scripts
     working_dir: /sql-scripts
     depends_on:
-      - sql-server
+      sql-server:
+        condition: service_healthy
     entrypoint: "./init-db.sh"
 
   airflow-webserver:
@@ -166,9 +133,7 @@ services:
       - -c
       - |
         mkdir -p /sources/dags
-        mkdir -p /sources/configs
         chown -R "${AIRFLOW_UID}:0" /sources/dags
-        chown -R "${AIRFLOW_UID}:0" /sources/configs
         exec /entrypoint airflow version
     environment:
       <<: *airflow-common-env
