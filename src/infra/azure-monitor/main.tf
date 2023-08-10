@@ -49,7 +49,7 @@ resource "azurerm_monitor_data_collection_rule" "logs_collection_rule" {
     streams       = ["Custom-AirflowLogs_CL"]
     destinations  = ["airflow-logs-destination"]
     output_stream = "Custom-AirflowLogs_CL"
-    transform_kql = "source\n| extend TimeGenerated = todatetime(Time)\n| parse RawData with * \"[\" LogTimestamp:datetime \"] {\" Method:string \"} \" LogLevel:string \" - \" Message:string\n| project-away Time, RawData\n// | where Method contains \"docker.py\"\n"
+    transform_kql = "source\n| extend TimeGenerated = todatetime(Time)\n| parse RawData with * \"[\" LogTimestamp:datetime \"] {\" Method:string \"} \" LogLevel:string \" - \" Message:string\n| project-away Time, RawData\n"
   }
 
   data_sources {
