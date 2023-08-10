@@ -31,7 +31,7 @@ resource "azurerm_resource_group" "resource_group" {
 }
 
 # Storage Account
-resource "azurerm_storage_account" "storage_account" {
+resource "azurerm_storage_account" "log_storage_account" {
   name                     = "stairflowlogs${random_id.random_name.hex}"
   resource_group_name      = azurerm_resource_group.resource_group.name
   location                 = azurerm_resource_group.resource_group.location
@@ -42,26 +42,26 @@ resource "azurerm_storage_account" "storage_account" {
 # Blob Container
 resource "azurerm_storage_container" "blob_container" {
   name                  = "airflow-logs"
-  storage_account_name  = azurerm_storage_account.storage_account.name
+  storage_account_name  = azurerm_storage_account.log_storage_account.name
   container_access_type = "private"
 }
 
 output "AIRFLOW__LOGGING__REMOTE_BASE_LOG_FOLDER" {
-  value = "wasb://${azurerm_storage_container.blob_container.name}@${azurerm_storage_account.storage_account.name}.blob.core.windows.net"
+  value = "wasb://${azurerm_storage_container.blob_container.name}@${azurerm_storage_account.log_storage_account.name}.blob.core.windows.net"
 }
 
 output "AZURE_BLOB_HOST" {
-  value = "${azurerm_storage_account.storage_account.name}"
+  value = "${azurerm_storage_account.log_storage_account.name}"
 }
 
 output "AZURE_BLOB_PASSWORD" {
   sensitive = true
-  value = "${azurerm_storage_account.storage_account.primary_access_key}"
+  value = "${azurerm_storage_account.log_storage_account.primary_access_key}"
 }
 
 output "AZURE_BLOB_CONNECTION_STRING" {
   sensitive = true
-  value = "${azurerm_storage_account.storage_account.primary_connection_string}"
+  value = "${azurerm_storage_account.log_storage_account.primary_connection_string}"
 }
 
 
@@ -128,14 +128,15 @@ resource "azurerm_monitor_data_collection_rule" "logs_collection_rule" {
   }
 
   identity {
-    type         = "SystemAssigned"
+    type = "SystemAssigned"
   }
 
   description = "Data collection rule for Airflow logs"
+  depends_on = [ null_resource.create_custom_table ]
 }
 
-resource "azurerm_storage_account" "logs_ingestion_function_app" {
-  name                     = "stforfunctionapp${random_id.random_name.hex}"
+resource "azurerm_storage_account" "function_app_storage" {
+  name                     = "stfunctionapp${random_id.random_name.hex}"
   resource_group_name      = azurerm_resource_group.resource_group.name
   location                 = azurerm_resource_group.resource_group.location
   account_tier             = "Standard"
@@ -151,28 +152,26 @@ resource "azurerm_service_plan" "logs_ingestion" {
 }
 
 resource "azurerm_windows_function_app" "logs_ingestion" {
-  name                = "logs-ingestion-${random_id.random_name.hex}"
-  resource_group_name = azurerm_resource_group.resource_group.name
-  location            = azurerm_resource_group.resource_group.location
-
-  storage_account_name       = azurerm_storage_account.logs_ingestion_function_app.name
-  storage_account_access_key = azurerm_storage_account.logs_ingestion_function_app.primary_access_key
-  service_plan_id            = azurerm_service_plan.logs_ingestion.id
+  name                          = "logs-ingestion-${random_id.random_name.hex}"
+  resource_group_name           = azurerm_resource_group.resource_group.name
+  location                      = azurerm_resource_group.resource_group.location
+  service_plan_id               = azurerm_service_plan.logs_ingestion.id
+  storage_account_name          = azurerm_storage_account.function_app_storage.name
+  storage_uses_managed_identity = true
 
   identity {
     type = "SystemAssigned"
   }
 
   app_settings = {
-    "airflowlogs_STORAGE" = azurerm_storage_account.storage_account.primary_connection_string
     "APPLICATIONINSIGHTS_CONNECTION_STRING" = azurerm_application_insights.logs_ingestion.connection_string
-    "AzureWebJobsStorage" = azurerm_storage_account.logs_ingestion_function_app.primary_connection_string
+    "AzureWebJobsStorage__accountName" = azurerm_storage_account.function_app_storage.name
+    "AirflowLogsStorage__accountName" = azurerm_storage_account.log_storage_account.name
     "DataCollectionEndpoint" = azurerm_monitor_data_collection_endpoint.logs_collection_endpoint.logs_ingestion_endpoint
     "DataCollectionRuleId" = azurerm_monitor_data_collection_rule.logs_collection_rule.immutable_id
     "FUNCTIONS_EXTENSION_VERSION" = "~4"
-    "FUNCTIONS_WORKER_RUNTIME"              = "dotnet"
-    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.logs_ingestion_function_app.primary_connection_string
-    # "WEBSITE_CONTENTSHARE" = 
+    "FUNCTIONS_WORKER_RUNTIME" = "dotnet"
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING" = azurerm_storage_account.function_app_storage.primary_connection_string
     "WEBSITE_RUN_FROM_PACKAGE" = 1
   }
 
@@ -188,20 +187,41 @@ resource "azurerm_application_insights" "logs_ingestion" {
   application_type    = "web"
 }
 
-resource "azurerm_role_assignment" "contributor_for_resource_group" {
-  scope                = azurerm_resource_group.resource_group.id
-  role_definition_name = "Contributor"
-  principal_id         = azurerm_windows_function_app.logs_ingestion.identity[0].principal_id
-}
-
-resource "azurerm_role_assignment" "contributor_for_log_analytics_workspace" {
-  scope                = azurerm_log_analytics_workspace.log_analytics.id
-  role_definition_name = "Contributor"
-  principal_id         = azurerm_windows_function_app.logs_ingestion.identity[0].principal_id
-}
-
-resource "azurerm_role_assignment" "contributor_for_dcr" {
+resource "azurerm_role_assignment" "metrics_publisher_for_dcr" {
   scope                = azurerm_monitor_data_collection_rule.logs_collection_rule.id
-  role_definition_name = "Contributor"
+  role_definition_name = "Monitoring Metrics Publisher"
+  principal_id         = azurerm_windows_function_app.logs_ingestion.identity[0].principal_id
+}
+
+# The use of managed identities to access Blob Storage requires a few roles to be set up corectly:
+# https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-blob-trigger?tabs=python-v2%2Cin-process&pivots=programming-language-csharp#grant-permission-to-the-identity
+
+resource "azurerm_role_assignment" "access_to_func_storage_1" {
+  scope                = azurerm_storage_account.function_app_storage.id
+  role_definition_name = "Storage Blob Data Owner"
+  principal_id         = azurerm_windows_function_app.logs_ingestion.identity[0].principal_id
+}
+
+resource "azurerm_role_assignment" "access_to_func_storage_2" {
+  scope                = azurerm_storage_account.function_app_storage.id
+  role_definition_name = "Storage Queue Data Contributor"
+  principal_id         = azurerm_windows_function_app.logs_ingestion.identity[0].principal_id
+}
+
+resource "azurerm_role_assignment" "access_to_func_storage_3" {
+  scope                = azurerm_storage_account.function_app_storage.id
+  role_definition_name = "Storage Account Contributor"
+  principal_id         = azurerm_windows_function_app.logs_ingestion.identity[0].principal_id
+}
+
+resource "azurerm_role_assignment" "access_to_log_storage_1" {
+  scope                = azurerm_storage_account.log_storage_account.id
+  role_definition_name = "Storage Blob Data Owner"
+  principal_id         = azurerm_windows_function_app.logs_ingestion.identity[0].principal_id
+}
+
+resource "azurerm_role_assignment" "access_to_log_storage_2" {
+  scope                = azurerm_storage_account.log_storage_account.id
+  role_definition_name = "Storage Queue Data Contributor"
   principal_id         = azurerm_windows_function_app.logs_ingestion.identity[0].principal_id
 }
