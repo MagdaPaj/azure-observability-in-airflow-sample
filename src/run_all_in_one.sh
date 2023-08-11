@@ -1,5 +1,5 @@
- cp .env.sample .env
- cd infra
+cp .env.sample .env
+cd infra
 terraform init
 terraform apply -auto-approve
 echo "AIRFLOW__LOGGING__REMOTE_BASE_LOG_FOLDER=$(terraform output AIRFLOW__LOGGING__REMOTE_BASE_LOG_FOLDER)" >> ../.env
