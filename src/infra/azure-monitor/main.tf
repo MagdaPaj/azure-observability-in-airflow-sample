@@ -52,9 +52,6 @@ resource "azurerm_monitor_data_collection_rule" "logs_collection_rule" {
     transform_kql = "source\n| extend TimeGenerated = todatetime(Time)\n| parse RawData with * \"[\" LogTimestamp:datetime \"] {\" Method:string \"} \" LogLevel:string \" - \" Message:string\n| project-away Time, RawData\n"
   }
 
-  data_sources {
-  }
-
   stream_declaration {
     stream_name = "Custom-AirflowLogs_CL"
     column {

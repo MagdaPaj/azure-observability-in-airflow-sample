@@ -54,23 +54,26 @@ resource "azurerm_windows_function_app" "logs_ingestion" {
   storage_uses_managed_identity = true
   storage_account_name          = azurerm_storage_account.logs_ingestion.name
   service_plan_id               = azurerm_service_plan.logs_ingestion.id
+  functions_extension_version   = "~4"
 
   identity {
     type = "SystemAssigned"
   }
 
   app_settings = {
-    "APPLICATIONINSIGHTS_CONNECTION_STRING"    = azurerm_application_insights.logs_ingestion.connection_string
-    "AzureWebJobsStorage__accountName"         = azurerm_storage_account.logs_ingestion.name
     "AirflowLogsStorage__accountName"          = var.raw_logs_storage_account_name
     "DataCollectionEndpoint"                   = var.data_collection_endpoint
     "DataCollectionRuleId"                     = var.data_collection_rule_immutable_id
-    "FUNCTIONS_EXTENSION_VERSION"              = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
     "WEBSITE_RUN_FROM_PACKAGE"                 = azurerm_storage_blob.logs_ingestion.url
   }
 
   site_config {
+    application_insights_connection_string = azurerm_application_insights.logs_ingestion.connection_string
+  }
+
+  lifecycle {
+    ignore_changes = [tags]
   }
 }
 
