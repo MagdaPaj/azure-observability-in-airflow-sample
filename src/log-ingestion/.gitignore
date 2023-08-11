@@ -262,3 +262,6 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+
+Deployment/
+logs_ingestion_func.zip

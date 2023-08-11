@@ -1,9 +1,8 @@
-# main.tf
 terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.0.2"
+      version = "~> 3.68.0"
     }
   }
 
@@ -11,7 +10,11 @@ terraform {
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
 }
 
 resource "random_id" "random_name" {
@@ -24,42 +27,58 @@ variable "location" {
   default     = "West Europe"
 }
 
-# Resource Group
+variable "function_project_path" {
+  type    = string
+  default = "../log-ingestion"
+}
+
 resource "azurerm_resource_group" "resource_group" {
-  name     = "rg-airflowlogs-${random_id.random_name.hex}"
+  name     = "rg-logs-ingestion-${random_id.random_name.hex}"
   location = var.location
 }
 
-# Storage Account
-resource "azurerm_storage_account" "storage_account" {
-  name                     = "stairflowlogs${random_id.random_name.hex}"
-  resource_group_name      = azurerm_resource_group.resource_group.name
-  location                 = azurerm_resource_group.resource_group.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
+module "raw_airflow_logs_storage" {
+  source    = "./raw-logs-storage"
+  rg_name   = azurerm_resource_group.resource_group.name
+  location  = var.location
+  random_id = random_id.random_name.hex
 }
 
-# Blob Container
-resource "azurerm_storage_container" "blob_container" {
-  name                  = "airflow-logs"
-  storage_account_name  = azurerm_storage_account.storage_account.name
-  container_access_type = "private"
+module "azure_monitor" {
+  source    = "./azure-monitor"
+  rg_name   = azurerm_resource_group.resource_group.name
+  location  = var.location
+  random_id = random_id.random_name.hex
+}
+
+module "logs_ingestion_function" {
+  source                            = "./logs-ingestion-function"
+  rg_name                           = azurerm_resource_group.resource_group.name
+  location                          = var.location
+  random_id                         = random_id.random_name.hex
+  raw_logs_storage_account_id       = module.raw_airflow_logs_storage.airflow_logs_storage_account_id
+  raw_logs_storage_account_name     = module.raw_airflow_logs_storage.airflow_logs_storage_account_name
+  log_analytics_workspace_id        = module.azure_monitor.log_analytics_workspace_id
+  data_collection_endpoint          = module.azure_monitor.data_collection_endpoint
+  data_collection_rule_immutable_id = module.azure_monitor.data_collection_rule_immutable_id
+  data_collection_rule_id           = module.azure_monitor.data_collection_rule_id
+  function_project_path             = var.function_project_path
 }
 
 output "AIRFLOW__LOGGING__REMOTE_BASE_LOG_FOLDER" {
-  value = "wasb://${azurerm_storage_container.blob_container.name}@${azurerm_storage_account.storage_account.name}.blob.core.windows.net"
+  value = module.raw_airflow_logs_storage.airflow_logging_remote_base_log_folder
 }
 
 output "AZURE_BLOB_HOST" {
-  value = "${azurerm_storage_account.storage_account.name}"
+  value = module.raw_airflow_logs_storage.airflow_logs_storage_account_name
 }
 
 output "AZURE_BLOB_PASSWORD" {
   sensitive = true
-  value = "${azurerm_storage_account.storage_account.primary_access_key}"
+  value     = module.raw_airflow_logs_storage.airflow_logs_blob_password
 }
 
 output "AZURE_BLOB_CONNECTION_STRING" {
   sensitive = true
-  value = "${azurerm_storage_account.storage_account.primary_connection_string}"
+  value     = module.raw_airflow_logs_storage.airflow_logs_storage_account_connection_string
 }
