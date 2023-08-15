@@ -35,14 +35,11 @@ Apache Airflow runs as a Docker compose project, and a required Azure infrastruc
 
 Whenever an Apache workflow is triggered a new log file is created and uploaded to Azure Blob Storage.
 This causes a `LogIngestion` Azure Function to be triggered.
+
 The function uses the Azure Monitor Ingestion client library for .NET. It sets up a Logs Ingestion client with previously created data collection endpoint. And it calls the Logs Ingestion API specifying parsed data from Blob Storage files (aka source data) and a data collection rule id.
-The data collection rule understands the structure of the source data, transforms the data to a format expected by the target table, and specifies a Log Analytics workspace and table to send the transformed data (it is a custom Log Analytics table called `AirflowLogs_CL`). 
+The data collection rule understands the structure of the source data, transforms the data to a format expected by the target table, and specifies a Log Analytics workspace and table to send the transformed data (it is a custom Log Analytics table called `AirflowLogs_CL`).
 
-See a generic diagram of data collection rules:
-
-![log-ingestion](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/media/data-ingestion-api-overview/data-ingestion-api-overview.png#lightbox)
-
-For more details, check [Logs Ingestion API documentation](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/logs-ingestion-api-overview).
+For more details about the Logs Ingestion API, check [this documentation](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/logs-ingestion-api-overview).
 
 ## Setup
 
