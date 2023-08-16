@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2023-08-15T16:08:22.511Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.203" etag="zl7FCoV3x8C22Y9fYjbW" version="21.6.8" type="device">
+<mxfile host="app.diagrams.net" modified="2023-08-16T09:10:19.133Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.203" etag="554K3NPQbMAWmWq3mm2J" version="21.6.8" type="device">
   <diagram name="Page-1" id="R_bO0IPfm7n-00rHLrhl">
-    <mxGraphModel dx="1373" dy="1280" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="846" dy="960" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -43,7 +43,7 @@
             <mxPoint x="370" y="310.5" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="5qC9VUd9-QGCX_WrEH31-6" value="Receives Airflow log files" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="5qC9VUd9-QGCX_WrEH31-6" value="Receives Airflow log files&amp;nbsp;and triggers the Function App" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="200" y="210" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="5qC9VUd9-QGCX_WrEH31-7" value="Parses Airflow logs and calls the Logs Ingestion API" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
@@ -61,7 +61,7 @@
             <mxPoint x="530" y="312.55" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="5qC9VUd9-QGCX_WrEH31-12" value="Stores Airflow logs" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="5qC9VUd9-QGCX_WrEH31-12" value="Stores Airflow logs and unlocks further log analysis in Azure" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="850" y="210" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="5qC9VUd9-QGCX_WrEH31-13" value="Receives data from Log Analytics API and data collection rule to be used&amp;nbsp;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
@@ -70,7 +70,7 @@
         <mxCell id="5qC9VUd9-QGCX_WrEH31-14" value="Data collection&lt;br&gt;endpoint" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
           <mxGeometry x="540" y="348" width="100" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="5qC9VUd9-QGCX_WrEH31-15" value="Transforms the data, and specifies Log Analytics workspace and table" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="5qC9VUd9-QGCX_WrEH31-15" value="Contains the ETL logic to be applied to the incoming logs" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="690" y="210" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="5qC9VUd9-QGCX_WrEH31-16" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">

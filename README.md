@@ -27,7 +27,7 @@ This sample shows two parts:
 2. Ingesting logs from Azure Blob Storage into Azure Monitor using a new ETL-like data collection pipeline
 with [Data Collection Rule](https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/data-collection-rule-overview), [Data Collection Endpoint](https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/data-collection-endpoint-overview) and [Logs Ingestion API](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/logs-ingestion-api-overview).
 
-Apache Airflow runs as a Docker compose project, and a required Azure infrastructure is created using terraform.
+Apache Airflow runs as a Docker compose project, and the required Azure infrastructure is created using terraform.
 
 ## Architecture overview
 
@@ -62,25 +62,25 @@ cd src
 
 ### Generate and view logs
 
-Follow the steps returned in the output of the previous step and login to the Airflow.
+Follow the steps returned in the output of the previous step and log in to Airflow.
 
-You will see tree available DAG workflows. Open one of them, but clicking its name:
+You will see tree available DAG workflows. Open one of them by clicking on its name:
 ![airflow-home-page](images/airflow-home-page.png)
 
 Trigger it with `Trigger DAG` button.
 ![airflow-trigger-dag](images/airflow-trigger-dag.png)
 
-There should be at least one task executed, click on it so Logs button will appear.
+There should be at least one task executed, click on it to make the Logs button appear.
 ![airflow-task-execution](images/airflow-task-execution.png)
 
-Click the Logs button and you should see `Found remote logs` message which indicates that the log file was sent to a configured Azure Blob Storage.
+Click the Logs button and you should see `Found remote logs` message, which indicates that the log file was sent to a configured Azure Blob Storage.
 ![airflow-logs-output](images/airflow-logs-output.png)
 
-Go to the Azure portal, you should see a new resource group starting with a name `rg-logs-ingestion`. Check that the Log Ingestion Azure Function was triggered successfully (usually there is a 5 min delay in viewing function executions):
+Go to the Azure portal, you should see a new resource group starting with `rg-logs-ingestion`. Check that the Log Ingestion Azure Function was triggered successfully (usually there is a 5 min delay until past executions show up):
 
 ![logs-ingestion-success](images/logs-ingestion-success.png)
 
-Finally, open the Log Analytics workspace from the same resource group and run the query for an `AirflowLogs_CL` table, where you will find Airflow logs.
+Finally, open the Log Analytics workspace from the same resource group and run the query against the `AirflowLogs_CL` table, where you will find Airflow logs.
 
 ![log-analytics-airflow-table](images/log-analytics-airflow-table.png)
 
