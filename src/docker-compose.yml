@@ -146,6 +146,19 @@ services:
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}:/sources
 
+  fluent-bit:
+    image: fluent/fluent-bit
+    volumes:
+      - ./fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+      - airflow-logs-volume:/airflow-logs
+  
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: [ "--config=/etc/otelcol-config.yml" ]
+    ports:
+      - 13133:13133 # health_check extension
+    volumes:
+      - ./otel-collector/otelcol-config.yml:/etc/otelcol-config.yml
 volumes:
   sql-volume:
   airflow-logs-volume:

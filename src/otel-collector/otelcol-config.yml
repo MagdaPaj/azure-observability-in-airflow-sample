@@ -1,0 +1,31 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+processors:
+  batch:
+exporters:
+  azuremonitor:
+    instrumentation_key: INSTRUMENTATION_KYE_PLACEHOLDER
+  logging:
+    verbosity: detailed
+
+extensions:
+  health_check:
+
+service:
+  extensions: [health_check]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [azuremonitor, logging]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [azuremonitor, logging]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [azuremonitor, logging]
