@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Azure;
 using Azure.Identity;
 using Azure.Monitor.Ingestion;
 using Microsoft.Azure.WebJobs;
@@ -32,7 +31,6 @@ namespace Sample.Function
             while (!reader.EndOfStream)
             {
                 var line = await reader.ReadLineAsync().ConfigureAwait(false);
-                log.LogInformation(line);
                 entries.Add(
                     new
                     {
@@ -42,6 +40,8 @@ namespace Sample.Function
                     }
                 );
             }
+
+            log.LogInformation($"Found {entries.Count} log entries to be uploaded");
 
             try
             {
@@ -56,7 +56,7 @@ namespace Sample.Function
 
         private static string GetEnvironmentVariable(string name)
         {
-            return System.Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Process);
+            return Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Process);
         }
     }
 }
