@@ -1,8 +1,10 @@
 receivers:
-  otlp:
-    protocols:
-      grpc:
-      http:
+  # otlp:
+  #   protocols:
+  #     grpc:
+  #     http:
+  fluentforward:
+    endpoint: otel-collector:4318
 processors:
   batch:
 exporters:
@@ -17,15 +19,15 @@ extensions:
 service:
   extensions: [health_check]
   pipelines:
-    traces:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [azuremonitor, logging]
-    metrics:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [azuremonitor, logging]
+    # traces:
+    #   receivers: [otlp]
+    #   processors: [batch]
+    #   exporters: [azuremonitor, logging]
+    # metrics:
+    #   receivers: [otlp]
+    #   processors: [batch]
+    #   exporters: [azuremonitor, logging]
     logs:
-      receivers: [otlp]
+      receivers: [fluentforward]
       processors: [batch]
       exporters: [azuremonitor, logging]
