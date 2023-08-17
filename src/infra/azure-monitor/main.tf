@@ -10,6 +10,16 @@ variable "random_id" {
   type = string
 }
 
+variable "custom_table_name" {
+  type = string
+  default = "AirflowLogs_CL"
+}
+
+variable "data_collection_rule_stream_name" {
+  type = string
+  default = "Custom-AirflowLogs_CL"
+}
+
 resource "azurerm_log_analytics_workspace" "log_analytics" {
   name                = "la-workspace-${var.random_id}"
   resource_group_name = var.rg_name
@@ -18,7 +28,7 @@ resource "azurerm_log_analytics_workspace" "log_analytics" {
 
 resource "null_resource" "create_custom_table" {
   provisioner "local-exec" {
-    command = "az monitor log-analytics workspace table create --resource-group ${var.rg_name} --workspace-name ${azurerm_log_analytics_workspace.log_analytics.name} -n AirflowLogs_CL --columns Application=string LogLevel=string LogTimestamp=datetime Message=string Method=string TimeGenerated=datetime"
+    command = "az monitor log-analytics workspace table create --resource-group ${var.rg_name} --workspace-name ${azurerm_log_analytics_workspace.log_analytics.name} -n ${var.custom_table_name} --columns Application=string LogLevel=string LogTimestamp=datetime Message=string Method=string TimeGenerated=datetime"
   }
 }
 
@@ -46,14 +56,14 @@ resource "azurerm_monitor_data_collection_rule" "logs_collection_rule" {
   }
 
   data_flow {
-    streams       = ["Custom-AirflowLogs_CL"]
+    streams       = ["${var.data_collection_rule_stream_name}"]
     destinations  = ["airflow-logs-destination"]
-    output_stream = "Custom-AirflowLogs_CL"
+    output_stream = "${var.data_collection_rule_stream_name}"
     transform_kql = "source\n| extend TimeGenerated = todatetime(Time)\n| parse RawData with * \"[\" LogTimestamp:datetime \"] {\" Method:string \"} \" LogLevel:string \" - \" Message:string\n| project-away Time, RawData\n"
   }
 
   stream_declaration {
-    stream_name = "Custom-AirflowLogs_CL"
+    stream_name = "${var.data_collection_rule_stream_name}"
     column {
       name = "Time"
       type = "datetime"
@@ -87,4 +97,8 @@ output "data_collection_rule_immutable_id" {
 
 output "data_collection_rule_id" {
   value = azurerm_monitor_data_collection_rule.logs_collection_rule.id
+}
+
+output "data_collection_rule_stream_name" {
+  value = var.data_collection_rule_stream_name
 }

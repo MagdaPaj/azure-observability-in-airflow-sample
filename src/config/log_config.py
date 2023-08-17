@@ -253,7 +253,7 @@ if REMOTE_LOGGING:
                 "formatter": "airflow",
                 "base_log_folder": str(os.path.expanduser(BASE_LOG_FOLDER)),
                 "wasb_log_folder": url_parts.path[1:],
-                "wasb_container": "airflow-logs",
+                "wasb_container": "logs",
                 "filename_template": FILENAME_TEMPLATE,
             },
         }

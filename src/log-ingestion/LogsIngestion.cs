@@ -13,13 +13,13 @@ namespace Sample.Function
     public class LogsIngestion
     {
         [FunctionName("LogsIngestion")]
-        public async Task Run([BlobTrigger("airflow-logs/{name}.log", Connection = "AirflowLogsStorage")]Stream myBlob, string name, ILogger log)
+        public async Task Run([BlobTrigger("logs/{name}.log", Connection = "LogsStorage")]Stream myBlob, string name, ILogger log)
         {
             log.LogInformation($"C# Blob trigger function starting processing blob\n Name: {name} \n Size: {myBlob.Length} Bytes");
 
             var endpoint = new Uri(GetEnvironmentVariable("DataCollectionEndpoint"));
             var ruleId = GetEnvironmentVariable("DataCollectionRuleId");
-            var streamName = "Custom-AirflowLogs_CL";
+            var streamName = GetEnvironmentVariable("DataCollectionRuleStreamName");
 
             var credential = new DefaultAzureCredential();
             LogsIngestionClient client = new(endpoint, credential);

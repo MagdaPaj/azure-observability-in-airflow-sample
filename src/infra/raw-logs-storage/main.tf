@@ -19,7 +19,7 @@ resource "azurerm_storage_account" "airflow_logs" {
 }
 
 resource "azurerm_storage_container" "airflow_logs" {
-  name                  = "airflow-logs"
+  name                  = "logs"
   storage_account_name  = azurerm_storage_account.airflow_logs.name
   container_access_type = "private"
 }

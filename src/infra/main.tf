@@ -62,6 +62,7 @@ module "logs_ingestion_function" {
   data_collection_endpoint          = module.azure_monitor.data_collection_endpoint
   data_collection_rule_immutable_id = module.azure_monitor.data_collection_rule_immutable_id
   data_collection_rule_id           = module.azure_monitor.data_collection_rule_id
+  data_collection_rule_stream_name  = module.azure_monitor.data_collection_rule_stream_name
   function_project_path             = var.function_project_path
 }
 

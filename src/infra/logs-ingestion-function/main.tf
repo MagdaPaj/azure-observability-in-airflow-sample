@@ -26,6 +26,10 @@ variable "data_collection_rule_id" {
   type = string
 }
 
+variable "data_collection_rule_stream_name" {
+  type = string
+}
+
 variable "raw_logs_storage_account_id" {
   type = string
 }
@@ -61,11 +65,12 @@ resource "azurerm_windows_function_app" "logs_ingestion" {
   }
 
   app_settings = {
-    "AirflowLogsStorage__accountName"          = var.raw_logs_storage_account_name
-    "DataCollectionEndpoint"                   = var.data_collection_endpoint
-    "DataCollectionRuleId"                     = var.data_collection_rule_immutable_id
-    "FUNCTIONS_WORKER_RUNTIME"                 = "dotnet"
-    "WEBSITE_RUN_FROM_PACKAGE"                 = azurerm_storage_blob.logs_ingestion.url
+    "LogsStorage__accountName"     = var.raw_logs_storage_account_name
+    "DataCollectionEndpoint"       = var.data_collection_endpoint
+    "DataCollectionRuleId"         = var.data_collection_rule_immutable_id
+    "DataCollectionRuleStreamName" = var.data_collection_rule_stream_name
+    "FUNCTIONS_WORKER_RUNTIME"     = "dotnet"
+    "WEBSITE_RUN_FROM_PACKAGE"     = azurerm_storage_blob.logs_ingestion.url
   }
 
   site_config {
